@@ -1,5 +1,6 @@
 # Database-Management
 
-Date Period: 2016 - 2017
+Date: 2016 - Now
 
-Write SQL samples for Yahoo Search Content Analyst to do user search data analysis. 
+Purpose : Write SQL samples for Yahoo Search Content Analyst to do user search data analysis in Hue (Hadoop User Interface). 
+
