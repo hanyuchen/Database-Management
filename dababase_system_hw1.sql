@@ -132,7 +132,7 @@ FROM
   having m.playerid = 'mayswi01') as wm
 where a.lslg > wm.lslg
 order by a.namefirst asc
-
+;
 
 -- Question 4i
 CREATE VIEW q4i(yearid, min, max, avg, stddev)
@@ -146,17 +146,118 @@ AS
 -- Question 4ii
 CREATE VIEW q4ii(binid, low, high, count)
 AS
-  SELECT 1, 1, 1, 1 -- replace this line
+  
+with bin as
+(
+select (max(salary) - min(salary))/10 as bin,
+     max(salary) as t0,
+     max(salary) - (max(salary) - min(salary))/10 as t1,
+     max(salary) - ((max(salary) - min(salary))/10)*2 as t2,
+     max(salary) - ((max(salary) - min(salary))/10)*3 as t3,
+     max(salary) - ((max(salary) - min(salary))/10)*4 as t4,
+     max(salary) - ((max(salary) - min(salary))/10)*5 as t5,
+     max(salary) - ((max(salary) - min(salary))/10)*6 as t6,
+     max(salary) - ((max(salary) - min(salary))/10)*7 as t7,
+     max(salary) - ((max(salary) - min(salary))/10)*8 as t8,
+     max(salary) - ((max(salary) - min(salary))/10)*9 as t9,
+     max(salary) - ((max(salary) - min(salary))/10)*10 as t10
+from salaries
+where yearid = '2016'
+)
+
+select 9 as binid, bin.t1 as low, bin.t0 as high, count(*) from salaries s, bin 
+where s.salary > bin.t1 
+and s.yearid = '2016'
+group by bin.t1, bin.t0
+
+union(select 8 as binidm,  bin.t2 as low, bin.t1 as high, count(*) from salaries s, bin 
+where s.salary > bin.t2 and s.salary < bin.t1
+and s.yearid = '2016'
+group by bin.t2, bin.t1)
+
+union(select 7 as binidm,  bin.t3 as low, bin.t2 as high, count(*) from salaries s, bin 
+where s.salary > bin.t3 and s.salary < bin.t2
+and s.yearid = '2016'
+group by bin.t3, bin.t2)
+
+union(select 6 as binidm,  bin.t4 as low, bin.t3 as high, count(*) from salaries s, bin 
+where s.salary > bin.t4 and s.salary < bin.t3
+and s.yearid = '2016'
+group by bin.t4, bin.t3)
+
+union(select 5 as binidm,  bin.t5 as low, bin.t4 as high, count(*) from salaries s, bin 
+where s.salary > bin.t5 and s.salary < bin.t4
+and s.yearid = '2016'
+group by bin.t5, bin.t4)
+
+union(select 4 as binidm,  bin.t6 as low, bin.t5 as high, count(*) from salaries s, bin 
+where s.salary > bin.t6 and s.salary < bin.t5
+and s.yearid = '2016'
+group by bin.t6, bin.t5)
+
+union(select 3 as binidm,  bin.t7 as low, bin.t6 as high, count(*) from salaries s, bin 
+where s.salary > bin.t7 and s.salary < bin.t6
+and s.yearid = '2016'
+group by bin.t7, bin.t6)
+
+union(select 2 as binidm,  bin.t8 as low, bin.t7 as high, count(*) from salaries s, bin 
+where s.salary > bin.t8 and s.salary < bin.t7
+and s.yearid = '2016'
+group by bin.t8, bin.t7)
+
+union(select 1 as binidm,  bin.t9 as low, bin.t8 as high, count(*) from salaries s, bin 
+where s.salary > bin.t9 and s.salary < bin.t8
+and s.yearid = '2016'
+group by bin.t9, bin.t8)
+
+union(select 0 as binidm,  bin.t10 as low, bin.t9 as high, count(*) from salaries s, bin 
+where s.salary < bin.t9
+and s.yearid = '2016'
+group by bin.t10, bin.t9)
+
+order by binid asc
 ;
 
 -- Question 4iii
 CREATE VIEW q4iii(yearid, mindiff, maxdiff, avgdiff)
 AS
-  SELECT 1, 1, 1, 1 -- replace this line
+
+
+select t2.yearid, t2.min - t1.min, t2.max - t1.max, t2.avg - t1.avg
+FROM
+	(select yearid, min(salary) as min, max(salary) as max , avg(salary) as avg 
+	from salaries 
+	group by yearid 
+	order by yearid asc 
+	limit 31) t1,
+
+	(select yearid, min(salary) as min, max(salary) as max , avg(salary) as avg 
+	from salaries 
+	group by yearid 
+	order by yearid desc 
+	limit 31) t2
+where t1.yearid = t2.yearid - 1 
 ;
 
 -- Question 4iv
 CREATE VIEW q4iv(playerid, namefirst, namelast, salary, yearid)
 AS
-  SELECT 1, 1, 1, 1, 1 -- replace this line
+
+select m.playerid, m.namefirst, m.namelast, s.salary, s.yearid
+from
+	master as m,
+	(select *
+	from salaries 
+	where yearid = 2000 and salary >= all
+      	      (select salary
+      	      from salaries where yearid = 2000 )
+  union (select *
+	from salaries
+	where yearid = 2001 and salary >= all
+      	      (select salary
+      	      from salaries where yearid = 2001 ))
+	 ) as s
+
+where m.playerid = s.playerid
+
 ;
